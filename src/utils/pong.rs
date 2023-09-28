@@ -2,6 +2,9 @@ extern crate piston_window;
 
 use piston_window::*;
 
+
+// use gfx_device_gl::{Factory, Resources, CommandBuffer};
+
 const WIDTH: f64 = 640.0;
 const HEIGHT: f64 = 480.0;
 
@@ -65,6 +68,22 @@ pub fn run() {
     let mut ball: Ball = Ball::new();
     let mut left_paddle: Paddle = Paddle::new(10.0);
     let mut right_paddle: Paddle = Paddle::new(WIDTH - 30.0);
+    let mut side_a_score: i32 = 0;
+    let mut side_b_score: i32 = 0;
+
+    let width = 640;
+    let height = 480;
+
+    let assets = find_folder::Search::ParentsThenKids(3, 3)
+    .for_folder("assets").unwrap();
+
+    let texture_context = TextureContext {
+        factory: window.factory.clone(),
+        encoder: window.factory.create_command_buffer().into()
+    };
+    let texture_settings = TextureSettings::new();
+    let mut glyphs = Glyphs::new(&assets.join("FiraSans-Regular.ttf"), texture_context, texture_settings).unwrap();
+
 
     while let Some(event) = window.next() {
         if let Some(Button::Keyboard(key)) = event.press_args() {
@@ -104,8 +123,12 @@ pub fn run() {
 
         // Reset ball if it goes out of bounds
         if ball.x < 0.0 || ball.x > WIDTH {
+            if ball.x < 0.0 {
+                side_b_score += 1; // Right player scores if ball goes out on the left side
+            } else {
+                side_a_score += 1; // Left player scores if ball goes out on the right side
+            }
             ball = Ball::new();
-            // TODO: determine the score based on which side the ball went off of.
         }
 
         window.draw_2d(&event, |c: Context, g, _| {
@@ -129,6 +152,38 @@ pub fn run() {
                 c.transform,
                 g,
             );
+
+            // Scoreboard background (at the bottom of the screen)
+            rectangle(
+                [0.5, 0.5, 0.5, 1.0],
+                [0.0, height as f64 - 50.0, width as f64, 50.0],
+                c.transform,
+                g,
+            );
+
+            // Display score for side A
+            let score_a_text = format!("Side A: {}", side_a_score);
+            text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20)
+                .draw(
+                    &score_a_text,
+                    &mut glyphs,
+                    &c.draw_state,
+                    c.transform.trans(WIDTH - 120.0, HEIGHT - 20.0),
+                    g,
+                )
+                .unwrap();
+
+            // Display score for side B
+            let score_b_text = format!("Side B: {}", side_b_score);
+            text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20)
+                .draw(
+                    &score_b_text,
+                    &mut glyphs,
+                    &c.draw_state,
+                    c.transform.trans(WIDTH - 120.0, HEIGHT - 20.0),
+                    g,
+                )
+                .unwrap();
         });
     }
 }

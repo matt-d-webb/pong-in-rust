@@ -4,13 +4,13 @@ A basic pong implementation in `Rust`
 
 ## Getting started
 
-- build
+### build
 
 ```bash
 cargo build
 ```
 
-- run
+### run
 
 ```bash
 cargo run
@@ -18,4 +18,6 @@ cargo run
 
 ### Example
 
-![pong](/img/pong-example.png)
+<p align="center">
+  <img src="img/pong-example.png" width="300" />
+</p>
