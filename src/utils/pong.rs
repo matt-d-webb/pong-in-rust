@@ -1,9 +1,5 @@
 extern crate piston_window;
-
 use piston_window::*;
-
-
-// use gfx_device_gl::{Factory, Resources, CommandBuffer};
 
 const WIDTH: f64 = 640.0;
 const HEIGHT: f64 = 480.0;
@@ -47,7 +43,6 @@ impl Paddle {
             velocity: 0.0,
         }
     }
-
     fn update(&mut self) {
         self.y += self.velocity;
 
@@ -71,6 +66,7 @@ pub fn run() {
     let mut side_a_score: i32 = 0;
     let mut side_b_score: i32 = 0;
 
+    // TODO: temp variables to adjustn score board layout:
     let width = 640;
     let height = 480;
 
@@ -83,7 +79,6 @@ pub fn run() {
     };
     let texture_settings = TextureSettings::new();
     let mut glyphs = Glyphs::new(&assets.join("FiraSans-Regular.ttf"), texture_context, texture_settings).unwrap();
-
 
     while let Some(event) = window.next() {
         if let Some(Button::Keyboard(key)) = event.press_args() {
@@ -108,7 +103,7 @@ pub fn run() {
         left_paddle.update();
         right_paddle.update();
 
-        // Ball collision with paddles
+        // Ball collision - could be refactored to read more clearly:
         if ball.x < left_paddle.x + 20.0
             && ball.x > left_paddle.x
             && ball.y > left_paddle.y
@@ -128,12 +123,12 @@ pub fn run() {
             } else {
                 side_a_score += 1; // Left player scores if ball goes out on the right side
             }
+            // TODO: current the ball always start towards the same player, should be alternativing (or based on last scorer)
             ball = Ball::new();
         }
 
         window.draw_2d(&event, |c: Context, g, _| {
             clear([0.0, 0.0, 0.0, 1.0], g);
-
             rectangle(
                 [1.0, 0.0, 0.0, 1.0],
                 [left_paddle.x, left_paddle.y, 20.0, 60.0],
@@ -161,7 +156,6 @@ pub fn run() {
                 g,
             );
 
-            // Display score for side A
             let score_a_text = format!("Side A: {}", side_a_score);
             text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20)
                 .draw(
@@ -173,7 +167,6 @@ pub fn run() {
                 )
                 .unwrap();
 
-            // Display score for side B
             let score_b_text = format!("Side B: {}", side_b_score);
             text::Text::new_color([1.0, 1.0, 1.0, 1.0], 20)
                 .draw(
